@@ -1,47 +1,44 @@
-library(dplyr)
 library(readr)
 library(lubridate)
 
-HPC_df <- read_delim("household_power_consumption.txt",delim=";",na=c("?","NA"))
 
-w1_df <- HPC_df %>% filter(Date %in% c("2/2/2007","1/2/2007"))
+# download file and unzip
+file_url <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+download.file(file_url,"data.zip",method="curl")
+df <- {unzip("data.zip")}
+
+# read require cols to dataframe
+data_df <- read_delim(df,delim=";",na=c("?","NA"), col_types = "ccddddddd")
+plot4_df <- subset(data_df,Date %in% c("2/2/2007","1/2/2007"))
+
+datetime_df  <- strptime(paste(dmy(plot4_df$Date) ,plot4_df$Time),"%Y-%m-%d %H:%M:%S")
+
+# create png image
+png("plot4.png", width = 480, height = 480)
 
 par(mfrow = c(2,2))
 
 ### plot1
 
-plot1_df <- mutate(w1_df, weekDate = paste(dmy(w1_df$Date) ,w1_df$Time)) %>%
-  select(weekDate,Global_active_power)
-
-with(plot1_df, plot(strptime(weekDate,"%Y-%m-%d %H:%M:%S"),Global_active_power,type="l",xlab="",ylab="Global Active Power(kilowatts)"))
+hist(plot4_df$Global_active_power,xlab="Global Active Power(kilowatts)",ylab="Frequency",main="Global Active Power", col="red")
 
 ### plot2
-par(new=FALSE)
-plot2_df <- mutate(w1_df, weekDate = paste(dmy(w1_df$Date) ,w1_df$Time)) %>%
-  select(weekDate,Voltage)
 
-with(plot2_df, plot(strptime(weekDate,"%Y-%m-%d %H:%M:%S"), Voltage, type="l", xlab="datetime",ylab="Voltage"))
-par(new=FALSE)
+plot(datetime_df, plot4_df$Voltage, type="l", xlab="datetime",ylab="Voltage")
+
 ### plot3
 
-plot3_df <- mutate(w1_df, weekDate = paste(dmy(w1_df$Date) ,w1_df$Time)) %>%
-  select(weekDate,starts_with("Sub"))
-
-labels <- grep("Sub",names(plot3_df),value=T)
-
-with(w1_weekday_df, plot(strptime(weekDate,"%Y-%m-%d %H:%M:%S"),Sub_metering_1,type="l",ylim=c(0,40),xlab="",ylab=""))
+plot(datetime_df, plot4_df$Sub_metering_1,type="l", col="black", xlab="", ylab="", ylim=c(0,38))
 par(new=TRUE)
-with(w1_weekday_df, plot(strptime(weekDate,"%Y-%m-%d %H:%M:%S"),Sub_metering_2,type="l",ylim=c(0,40),xlab="",ylab="",col="red"))
+plot(datetime_df, plot4_df$Sub_metering_2, type="l", col="red", xlab="", ylab="", ylim=c(0,38))
 par(new=TRUE)
-with(w1_weekday_df, plot(strptime(weekDate,"%Y-%m-%d %H:%M:%S"),Sub_metering_3,type="l",ylim=c(0,40),xlab="",ylab="Energy sub metering",col="blue"))
-legend("topright", legend = labels, col = c("black","red","blue"), lty = c(1,1,1),box.lty=0,y.intersp = 0.8)
+plot(datetime_df, plot4_df$Sub_metering_3, type="l", col="blue", xlab="", ylab="Energy sub metering", ylim=c(0,38))
+
+legend("topright", legend = labels, col = c("black","red","blue"), lty = c(1,1,1), box.lty = 0)
 
 
 ### plot4
-par(new=FALSE)
-plot4_df <- mutate(w1_df, weekDate = paste(dmy(w1_df$Date) ,w1_df$Time)) %>%
-  select(weekDate,Global_reactive_power)
 
-with(plot4_df, plot(strptime(weekDate,"%Y-%m-%d %H:%M:%S"), Global_reactive_power, type="l", xlab="datetime"))
+plot(datetime_df, plot4_df$Global_reactive_power, type="l", xlab="datetime", ylab="Global_reactive_power")
 
-
+dev.off()
