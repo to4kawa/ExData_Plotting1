@@ -3,7 +3,8 @@
 ### Files
 * 4 R scripts: plot1.R, plot2.R, plot3.R, plot4.R<br>
 * 4 PNG images: plot1.png, plot2.png, plot3.png, plot4.png<br>
-* 2 README : README.md, oldREADME.md(forked original)<br>
+* 2 README:  README.md, oldREADME.md(forked original)<br>
+* 1 Directory: figure(original README.md used)
 
 ### Porpose
 
